@@ -18,7 +18,7 @@ $(document).ready(function () {
         //计算相差秒数
         var leave3 = leave2 % (60 * 1000); //计算分钟数后剩余的毫秒数
         var seconds = Math.round(leave3 / 1000);
-        var str = "我们在一起的第" + days + "天" + hours + "时" + minutes + "分" + seconds + "秒";
+        var str = "我们在一起的第 " + days + " 天 " + hours + " 时 " + minutes + " 分 " + seconds + " 秒";
         $("#time").text(str);
     }, 1000); //隔一秒更新
 });
