@@ -1,6 +1,6 @@
 name: Tencent Cloudbase
 
-# 推送 master 分支时自动部署
+# 推送 master 分支时自动部署静态站点到云开发静态托管
 on:
   push:
     branches: [ master ]
@@ -8,21 +8,26 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Tencent Cloudbase Github Action
-    env:
-      # cloudbaserc.json 里用 {{env.ENV_ID}} 引用，本地执行时可自行 export
-      ENV_ID: ${{ secrets.ENV_ID }}
+    name: Deploy static to Tencent CloudBase
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
-    # 使用云开发 Github Action 部署（v2 会自动读取仓库根目录的 cloudbaserc.json）
-    - name: Tencent CloudBase Github Action
-      uses: TencentCloudBase/cloudbase-action@v2.0.1
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
       with:
-        # 云开发的访问密钥 secretId 和 secretKey
-        secretId: ${{ secrets.SECRET_ID }}
-        secretKey: ${{ secrets.SECRET_KEY }}
-        # 云开发的环境 id
-        envId: ${{ secrets.ENV_ID }}
+        node-version: 22
+
+    # 云开发 CLI 的 framework 部署能力在 3.x 的打包产物里无法加载外部插件，
+    # 这里直接用静态托管上传命令部署，行为与原来的 v1 action 一致
+    - name: Install CloudBase CLI
+      run: npm install -g @cloudbase/cli
+
+    - name: Login to CloudBase
+      run: tcb login --apiKeyId "${{ secrets.SECRET_ID }}" --apiKey "${{ secrets.SECRET_KEY }}"
+
+    - name: Deploy static files
+      run: >-
+        tcb hosting deploy ./ / -e "${{ secrets.ENV_ID }}"
+        --ignore ".github,.github/**,.vscode,.vscode/**,cloudbaserc.json,cloudbaserc.js,cloudbase-framework.json,README.md"
