@@ -9,8 +9,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy static to Tencent CloudBase
-    env:
-      SITE_DIR: ${{ runner.temp }}/site
 
     steps:
     - name: Checkout
@@ -40,9 +38,9 @@ jobs:
           --exclude 'cloudbaserc.json' \
           --exclude 'cloudbaserc.js' \
           --exclude 'README.md' \
-          ./ "$SITE_DIR/"
-        chmod -R u+w "$SITE_DIR"
-        du -sh "$SITE_DIR"
+          ./ "$RUNNER_TEMP/site/"
+        chmod -R u+w "$RUNNER_TEMP/site"
+        du -sh "$RUNNER_TEMP/site"
 
     - name: Deploy static files
-      run: tcb hosting deploy "$SITE_DIR/" / -e "${{ secrets.ENV_ID }}"
+      run: tcb hosting deploy "$RUNNER_TEMP/site/" / -e "${{ secrets.ENV_ID }}"
