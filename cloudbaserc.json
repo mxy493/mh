@@ -1,0 +1,30 @@
+{
+  "$schema": "https://framework-1258016615.tcloudbaseapp.com/schema/latest.json",
+  "version": "2.0",
+  "envId": "{{env.ENV_ID}}",
+  "framework": {
+    "name": "mh",
+    "plugins": {
+      "website": {
+        "use": "@cloudbase/framework-plugin-website",
+        "inputs": {
+          "outputPath": "./",
+          "cloudPath": "/",
+          "ignore": [
+            ".git",
+            ".git/**",
+            ".github",
+            ".github/**",
+            ".vscode",
+            ".vscode/**",
+            "node_modules",
+            "node_modules/**",
+            "cloudbaserc.json",
+            "cloudbaserc.js",
+            "cloudbase-framework.json"
+          ]
+        }
+      }
+    }
+  }
+}

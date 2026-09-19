@@ -1,34 +1,28 @@
 name: Tencent Cloudbase
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
+# 推送 master 分支时自动部署
 on:
   push:
-    branches: [ master ] # push 代码时触发
+    branches: [ master ]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "deploy"
   deploy:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
     name: Tencent Cloudbase Github Action
+    env:
+      # cloudbaserc.json 里用 {{env.ENV_ID}} 引用，本地执行时可自行 export
+      ENV_ID: ${{ secrets.ENV_ID }}
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - name: Checkout
       uses: actions/checkout@v2
-        
-      # 使用云开发 Github Action 部署
-    - name: Deploy static to Tencent CloudBase
-      id: deployStatic
-      uses: TencentCloudBase/cloudbase-action@v1.1.1
+
+    # 使用云开发 Github Action 部署（v2 会自动读取仓库根目录的 cloudbaserc.json）
+    - name: Tencent CloudBase Github Action
+      uses: TencentCloudBase/cloudbase-action@v2.0.1
       with:
-      # 云开发的访问密钥 secretId 和 secretKey
+        # 云开发的访问密钥 secretId 和 secretKey
         secretId: ${{ secrets.SECRET_ID }}
         secretKey: ${{ secrets.SECRET_KEY }}
-          # 云开发的环境id
+        # 云开发的环境 id
         envId: ${{ secrets.ENV_ID }}
-          # Github 项目静态文件的路径
-        staticSrcPath: ./
