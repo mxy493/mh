@@ -9,6 +9,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy static to Tencent CloudBase
+    env:
+      SITE_DIR: ${{ runner.temp }}/site
 
     steps:
     - name: Checkout
@@ -27,7 +29,20 @@ jobs:
     - name: Login to CloudBase
       run: tcb login --apiKeyId "${{ secrets.SECRET_ID }}" --apiKey "${{ secrets.SECRET_KEY }}"
 
+    # CLI 会校验上传目录中每个文件的读写权限，而 .git 下的对象文件是只读的，
+    # 所以先把要发布的静态文件复制到单独目录，顺带排除开发用文件
+    - name: Stage static files
+      run: |
+        rsync -a \
+          --exclude '.git/' \
+          --exclude '.github/' \
+          --exclude '.vscode/' \
+          --exclude 'cloudbaserc.json' \
+          --exclude 'cloudbaserc.js' \
+          --exclude 'README.md' \
+          ./ "$SITE_DIR/"
+        chmod -R u+w "$SITE_DIR"
+        du -sh "$SITE_DIR"
+
     - name: Deploy static files
-      run: >-
-        tcb hosting deploy ./ / -e "${{ secrets.ENV_ID }}"
-        --ignore ".github,.github/**,.vscode,.vscode/**,cloudbaserc.json,cloudbaserc.js,cloudbase-framework.json,README.md"
+      run: tcb hosting deploy "$SITE_DIR/" / -e "${{ secrets.ENV_ID }}"
